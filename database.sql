@@ -223,7 +223,7 @@ INSERT INTO loket_jenis (loket_id, jenis_id) VALUES
 
 -- Password default semua user: password123
 INSERT INTO users (nama, nip, jabatan, role, username, password) VALUES
-('Administrator Sistem','1900000000000001','Analis Kepegawaian','admin','admin','$2y$10$eImiTXuWVxfM37uY4JANjQ.owIwZ3X4T0h5qfzUoA1Bz.7r4E3s'),
-('Drs. H. Bambang Sutrisno, M.M.','196805121990031005','Kepala Dinas','kepala_dinas','kadis','$2y$10$eImiTXuWVxfM37uY4JANjQ.owIwZ3X4T0h5qfzUoA1Bz.7r4E3s'),
-('Siti Aminah, S.Sos., M.Pd.','197503202000012004','Kepala Bidang Pendataan','kepala_bidang','kabid','$2y$10$eImiTXuWVxfM37uY4JANjQ.owIwZ3X4T0h5qfzUoA1Bz.7r4E3s'),
-('Rina Kartika, A.Md.','198811052010012003','Petugas Front Office','petugas','petugas','$2y$10$eImiTXuWVxfM37uY4JANjQ.owIwZ3X4T0h5qfzUoA1Bz.7r4E3s');
+('Administrator Sistem','1900000000000001','Analis Kepegawaian','admin','admin','$2y$10$amNFdgUzkC.J3NwDINtIG.sTu42OE43W0N0NobdYQLoDFmQlgCuuW'),
+('Drs. H. Bambang Sutrisno, M.M.','196805121990031005','Kepala Dinas','kepala_dinas','kadis','$2y$10$amNFdgUzkC.J3NwDINtIG.sTu42OE43W0N0NobdYQLoDFmQlgCuuW'),
+('Siti Aminah, S.Sos., M.Pd.','197503202000012004','Kepala Bidang Pendataan','kepala_bidang','kabid','$2y$10$amNFdgUzkC.J3NwDINtIG.sTu42OE43W0N0NobdYQLoDFmQlgCuuW'),
+('Rina Kartika, A.Md.','198811052010012003','Petugas Front Office','petugas','petugas','$2y$10$amNFdgUzkC.J3NwDINtIG.sTu42OE43W0N0NobdYQLoDFmQlgCuuW');

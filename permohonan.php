@@ -202,7 +202,7 @@ include __DIR__ . '/app/partials/header_public.php';
               <div class="ic"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12h6m-6 4h6M7 4h10l4 4v12a1 1 0 01-1 1H4a1 1 0 01-1-1V8l4-4z"/></svg></div>
               <b><?= e($j['nama']) ?></b>
               <p><?= e($j['deskripsi']) ?></p>
-              <span class="chip" style="margin-top:8px;display:inline-block">Kuota: <?= (int)$j['kuota_per_hari']>/hari</span>
+              <span class="chip" style="margin-top:8px;display:inline-block">Kuota: <?= (int)$j['kuota_per_hari'] ?> /hari</span>
             </div>
           <?php endforeach; ?>
         </div>
