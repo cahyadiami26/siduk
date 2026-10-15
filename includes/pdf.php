@@ -35,57 +35,120 @@ function img_data_uri(?string $relPath, int $maxW = 200): string
     return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($abs));
 }
 
-/** QR Code: unduh dari API online (api.qrserver.com) → cache permanen di /uploads/qr
- * → kembalikan data URI base64 sehingga selalu tampil baik di halaman web maupun PDF domPDF
- * (domPDF tidak memuat URL remote). Jika API gagal, dicoba endpoint alternatif quickchart.io,
- * lalu fallback ke URL API langsung (browser masih bisa menampilkannya di halaman HTML). */
-function qr_api_url(string $text, int $size): string
+/* ============================================================
+ * QR CODE — generate via API online (dengan beberapa endpoint
+ * cadangan) → cache permanen di /uploads/qr → kembalikan data
+ * URI base64 sehingga selalu tampil di halaman web maupun pada
+ * PDF domPDF (domPDF tidak dapat memuat URL remote).
+ * ============================================================ */
+
+/** Daftar endpoint layanan QR code online (dicoba berurutan). */
+function qr_endpoints(string $text, int $size): array
 {
-    return 'https://api.qrserver.com/v1/create-qr-code/?size=' . $size . 'x' . $size .
-           '&margin=0&data=' . urlencode($text);
+    $enc = rawurlencode($text);
+    return [
+        'https://api.qrserver.com/v1/create-qr-code/?size=' . $size . 'x' . $size . '&margin=0&data=' . $enc,
+        'https://api.qrserver.com/v1/create-qr-code/?size=' . $size . 'x' . $size . '&margin=0&qzone=2&data=' . $enc,
+        'https://quickchart.io/qr?size=' . $size . '&margin=0&format=png&text=' . $enc,
+        'https://chart.googleapis.com/chart?chs=' . $size . 'x' . $size . '&cht=qr&choe=UTF-8&chl=' . $enc,
+    ];
 }
 
-function qr_fetch(string $url): ?string
+/** Unduh file via cURL (handal walau allow_url_fopen dinonaktifkan). */
+function qr_curl_get(string $url): ?string
 {
+    if (!function_exists('curl_init')) return null;
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_MAXREDIRS      => 3,
+        CURLOPT_CONNECTTIMEOUT => 8,
+        CURLOPT_TIMEOUT        => 15,
+        CURLOPT_SSL_VERIFYPEER => false,
+        CURLOPT_SSL_VERIFYHOST => 0,
+        CURLOPT_USERAGENT      => 'SIDUK/1.0',
+        CURLOPT_HTTPHEADER     => ['Accept: image/png,image/*'],
+    ]);
+    $data = curl_exec($ch);
+    $code = (int)curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    curl_close($ch);
+    if ($data === false || $code !== 200) return null;
+    return $data;
+}
+
+/** Unduh file via file_get_contents (butuh allow_url_fopen aktif). */
+function qr_fopen_get(string $url): ?string
+{
+    if (!ini_get('allow_url_fopen')) return null;
     $ctx = stream_context_create([
-        'http' => ['timeout' => 10, 'follow_location' => 1, 'user_agent' => 'SIDUK/1.0'],
+        'http' => ['timeout' => 12, 'follow_location' => 1, 'user_agent' => 'SIDUK/1.0'],
         'ssl'  => ['verify_peer' => false, 'verify_peer_name' => false],
     ]);
     $data = @file_get_contents($url, false, $ctx);
-    if ($data === false) return null;
-    // pastikan hasil unduhan benar-benar gambar (PNG/JPEG), bukan halaman error
-    if (strlen($data) < 200) return null;
-    $sig = substr($data, 0, 8);
-    if (strpos($sig, 'PNG') !== false || strpos($sig, 'JFIF') !== false || strpos($sig, 'Exif') !== false) {
-        return $data;
+    return $data === false ? null : $data;
+}
+
+/** Validasi bahwa hasil unduhan benar-benar gambar PNG/JPEG. */
+function qr_is_image(?string $data): bool
+{
+    if ($data === null || strlen($data) < 100) return false;
+    $sig = substr($data, 0, 12);
+    return strpos($sig, 'PNG') !== false || strpos($sig, 'JFIF') !== false
+        || strpos($sig, 'Exif') !== false || strncmp($data, "\xFF\xD8", 2) === 0;
+}
+
+/** Ambil citra QR dari API online (berbagai metode & endpoint). */
+function qr_generate(string $text, int $size): ?string
+{
+    foreach (qr_endpoints($text, $size) as $url) {
+        $data = qr_curl_get($url) ?? qr_fopen_get($url);
+        if (qr_is_image($data)) return $data;
     }
     return null;
 }
 
+/** URL QR untuk atribut src <img> — mengembalikan data URI base64 (pasti tampil). */
 function qr_url(string $text, int $size = 130): string
 {
     $cacheDir = defined('UPLOAD_DIR') ? UPLOAD_DIR . '/qr' : __DIR__ . '/../uploads/qr';
     if (!is_dir($cacheDir)) @mkdir($cacheDir, 0777, true);
     $file = $cacheDir . '/qr_' . md5($text . '|' . $size) . '.png';
 
-    $data = (is_file($file) && filesize($file) > 0) ? @file_get_contents($file) : null;
-
-    if (!$data) {
-        $data = qr_fetch(qr_api_url($text, $size));
-        if (!$data) {   // endpoint cadangan (tetap layanan QR API online)
-            $data = qr_fetch('https://quickchart.io/qr?size=' . $size . '&margin=0&format=png&text=' . urlencode($text));
-        }
-        if ($data) @file_put_contents($file, $data);
+    // pakai cache bila ada
+    if (is_file($file) && filesize($file) > 100) {
+        $data = @file_get_contents($file);
+        if (qr_is_image($data)) return 'data:image/' . (strpos(substr($data, 0, 8), 'PNG') !== false ? 'png' : 'jpeg') . ';base64,' . base64_encode($data);
     }
 
-    if ($data) return 'data:image/png;base64,' . base64_encode($data);
-    // fallback terakhir: URL API langsung (browser bisa memuatnya pada halaman HTML).
-    // Jika itu pun gagal dimuat, tampilkan placeholder terkode-data agar area QR tidak blank.
+    $data = qr_generate($text, $size);
+    if ($data) {
+        @file_put_contents($file, $data);
+        $mime = strpos(substr($data, 0, 8), 'PNG') !== false ? 'png' : 'jpeg';
+        return 'data:image/' . $mime . ';base64,' . base64_encode($data);
+    }
+
+    // Semua API online gagal → placeholder SVG agar area QR tidak blank total.
     $ph = '<svg xmlns="http://www.w3.org/2000/svg" width="' . $size . '" height="' . $size . '">'
         . '<rect width="100%" height="100%" fill="#f1f5f9" stroke="#cbd5e1"/>'
         . '<text x="50%" y="46%" font-size="' . max(8, (int)($size / 12)) . '" fill="#64748b" text-anchor="middle">QR Code</text>'
         . '<text x="50%" y="58%" font-size="' . max(7, (int)($size / 14)) . '" fill="#94a3b8" text-anchor="middle">tidak tersedia</text></svg>';
     return 'data:image/svg+xml;base64,' . base64_encode($ph);
+}
+
+/** Render tag <img> QR yang dijamin tampil: jika data URI gagal dimuat browser,
+ * JS akan menggantinya dengan memuat langsung dari URL API online (src fallback). */
+function qr_img(string $text, int $size = 130, array $attrs = []): string
+{
+    $uri = qr_url($text, $size);
+    $fallback = htmlspecialchars(qr_endpoints($text, $size)[0], ENT_QUOTES);
+    $extra = '';
+    foreach ($attrs as $k => $v) $extra .= ' ' . $k . '="' . htmlspecialchars((string)$v, ENT_QUOTES) . '"';
+    $style = trim(($attrs['style'] ?? '') . ';width:' . $size . 'px;height:' . $size . 'px');
+    return '<img src="' . htmlspecialchars($uri, ENT_QUOTES) . '"' .
+        ' data-fallback="' . $fallback . '"' .
+        ' onerror="this.onerror=null;if(this.dataset.loaded!=1){this.dataset.loaded=1;this.src=this.dataset.fallback}"' .
+        ' style="' . htmlspecialchars($style, ENT_QUOTES) . '"' . $extra . '>';
 }
 
 /** Header kop surat standar dinas */

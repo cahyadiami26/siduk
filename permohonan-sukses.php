@@ -38,8 +38,7 @@ include __DIR__ . '/app/partials/header_public.php';
           </table>
         </div>
         <div style="text-align:center;background:var(--sky);border-radius:12px;padding:20px">
-          <img src="<?= e(qr_url(base_url() . '/cek-permohonan.php?nomor=' . urlencode($p['nomor_pendaftaran']) . '&token=' . $p['token'], 170)) ?>"
-               alt="QR Verifikasi" style="width:170px;height:170px;background:#fff;padding:8px;border-radius:10px">
+          <?= qr_img(base_url() . '/cek-permohonan.php?nomor=' . urlencode($p['nomor_pendaftaran']) . '&token=' . $p['token'], 170, ['alt' => 'QR Verifikasi Pendaftaran', 'style' => 'background:#fff;padding:8px;border-radius:10px']) ?>
           <p class="small muted mt0">QR Code validasi pendaftaran.<br>Scan untuk melihat status permohonan.</p>
         </div>
       </div>

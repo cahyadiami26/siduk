@@ -51,7 +51,7 @@ $html = '
   </td>
   <td style="width:38%;vertical-align:top;padding-left:10px">
     <div style="text-align:center;border:1px solid #c8cfdd;border-radius:8px;padding:8px;background:#fbfcfe">
-      <img src=' . $qrcode . '" alt="QR Code Verifikasi" style="width:118px;height:118px"><br>
+      <img src="' . $qrcode . '" alt="QR Code Verifikasi" style="width:118px;height:118px"><br>
       <span class="small">QR Verifikasi Pendaftaran</span>
     </div>
     <div class="box" style="margin-top:8px">
