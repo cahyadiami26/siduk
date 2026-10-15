@@ -5,7 +5,7 @@ Aplikasi web pelayanan dokumen kependudukan: **PHP native + MySQL/MariaDB**, tan
 ## Fitur Utama
 - **Form permohonan publik (tanpa login)** wizard 5 langkah: identitas + captcha → pilih jenis layanan → isian & unggah syarat **dinamis per jenis** → pilih tanggal verifikasi sesuai kuota harian → konfirmasi. Bukti pendaftaran (PDF A5 landscape + QR) dan email konfirmasi via PHPMailer.
 - **Dashboard**: kartu statistik, horizontal bar chart per jenis permohonan, 5 permohonan & aktivitas terbaru.
-- **Pengaturan aplikasi** (admin/kadis/kabid): nama dinas, alamat, logo, format nomor pendaftaran, data & gambar tanda tangan kepala dinas, SMTP.
+- **Pengaturan aplikasi** (admin/kadis/kabid): nama dinas, alamat, logo, format nomor pendaftaran dengan placeholder **`{kode}` / `{Kode}` / `{KODE}`** (kode jenis permohonan — chip klik-untuk-sisip + preview contoh langsung dari data DB), data & gambar tanda tangan kepala dinas, SMTP.
 - **CRUD pengguna** (admin/kadis), **CRUD jenis permohonan + field isian + syarat + kuota/hari** (admin/kadis/kabid), **CRUD loket** (admin/kadis/kabid).
 - **Pemrosesan permohonan** (petugas): filter/cari, view, verifikasi → cetak formulir (A4) & bukti verifikasi (A5 landscape), atur tanggal pengambilan, batalkan dengan alasan.
 - **Penyerahan dokumen** (petugas): serahkan sendiri/diwakilkan (data penjamin) → status selesai.

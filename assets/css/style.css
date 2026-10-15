@@ -243,3 +243,9 @@ input[type="file"].upl-native{font-size:.85rem;width:100%;padding:7px;border:1.5
   body{background:#fff}
   .card{border:none;box-shadow:none}
 }
+
+/* ---------- Placeholder chips & preview nomor pendaftaran (pengaturan) ---------- */
+.ph-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip.ph{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:.72rem;border:1px solid var(--line);background:#fff;color:var(--navy);border-radius:7px;padding:4px 9px;cursor:pointer;transition:.15s;line-height:1.2}
+.chip.ph:hover{background:var(--navy);color:#fff;border-color:var(--navy)}
+.nomor-preview{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;color:var(--navy);background:var(--sky);border:1px dashed var(--navy);border-radius:8px;padding:8px 12px;min-height:38px;display:flex;align-items:center;word-break:break-all}
