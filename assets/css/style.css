@@ -58,6 +58,12 @@ table.tbl{width:100%;border-collapse:collapse;font-size:.88rem}
 table.tbl th{background:#f7f9fd;color:#51617a;text-align:left;padding:11px 14px;font-weight:600;border-bottom:2px solid var(--line);white-space:nowrap}
 table.tbl td{padding:11px 14px;border-bottom:1px solid var(--line);vertical-align:middle}
 table.tbl tr:hover td{background:#fafcff}
+/* tabel definisi (2 kolom label-value) menumpuk rapi di HP */
+@media(max-width:600px){
+  table.defn,table.defn tbody,table.defn tr,table.defn td{display:block;width:100%}
+  table.defn tr{margin-bottom:7px}
+  table.defn td.muted{font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;padding-bottom:0!important}
+}
 .badge{display:inline-block;padding:4px 10px;border-radius:999px;font-size:.72rem;font-weight:600}
 .bg-success{background:#e7f7ee;color:#15803d}.bg-warning{background:#fdf3e0;color:#b45309}
 .bg-info{background:#e8f0fe;color:#1d4ed8}.bg-danger{background:#fdecec;color:#b91c1c}
@@ -164,3 +170,76 @@ label.flbl{display:block;font-size:.8rem;font-weight:600;color:#41506a;margin-bo
 .filterbar{display:flex;gap:10px;flex-wrap:wrap;align-items:end}
 .filterbar .fgroup{margin-bottom:0;min-width:150px}
 .imgprev{max-width:120px;max-height:80px;border:1px solid var(--line);border-radius:8px;padding:2px;background:#fff}
+
+/* ---------- Upload dengan sumber kamera / galeri / dokumen (mobile) ---------- */
+.upl-sumber{display:flex;gap:7px;margin-top:9px;flex-wrap:wrap}
+.upl-btn{display:inline-flex;align-items:center;gap:6px;border:1.5px solid #c9d4e6;background:#fff;color:#41506a;border-radius:8px;padding:6px 12px;font-size:.76rem;font-weight:600;cursor:pointer;transition:.15s;line-height:1.2}
+.upl-btn:hover{border-color:var(--blue);color:var(--blue);background:#f6f9ff}
+.upl-btn svg{width:14px;height:14px}
+.upl-btn.active{background:var(--navy);border-color:var(--navy);color:#fff}
+input[type="file"].upl-native{font-size:.85rem;width:100%;padding:7px;border:1.5px dashed #c9d4e6;border-radius:8px;background:#fff}
+@media(min-width:992px){.upl-sumber{display:none}} /* tombol kamera/galeri/dokumen hanya tampil di HP/tablet */
+.upl-thumbs{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+.upl-thumbs img{width:72px;height:72px;object-fit:cover;border:1px solid var(--line);border-radius:8px;background:#fff;padding:2px}
+
+/* ============================================================
+   RESPONSIVE — mobile-first tweaks
+   ============================================================ */
+.hamburger{display:none;background:none;border:1px solid var(--line);border-radius:8px;padding:7px 9px;cursor:pointer;color:var(--navy)}
+.hamburger svg{width:20px;height:20px;display:block}
+.sidebar-backdrop{display:none;position:fixed;inset:0;background:rgba(10,22,40,.5);z-index:70}
+
+@media(max-width:1100px){
+  .hbar-row{grid-template-columns:150px 1fr 44px}
+}
+@media(max-width:991px){
+  /* Sidebar dashboard jadi drawer + hamburger */
+  .hamburger{display:inline-flex}
+  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:80;height:100dvh;width:min(82vw,300px);transform:translateX(-105%);transition:transform .25s ease;box-shadow:0 0 40px rgba(0,0,0,.35)}
+  body.nav-open .sidebar{transform:translateX(0)}
+  body.nav-open .sidebar-backdrop{display:block}
+  .content{padding:16px 14px 40px}
+  .topbar{padding:10px 14px}
+  .topbar h4{font-size:.95rem}
+  .card .bd{padding:15px}
+  .card .hd{padding:13px 15px}
+  .stats{grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+  .stat{padding:14px 15px}
+  .stat .val{font-size:1.5rem}
+  .form-row{grid-template-columns:1fr}
+  .filterbar .fgroup{min-width:0;flex:1 1 160px}
+  .hbar-row{grid-template-columns:1fr;gap:5px;margin-bottom:14px}
+  /* nav publik */
+  .pub-nav{flex-wrap:wrap;gap:8px 14px;padding:13px 16px}
+  .pub-nav nav{width:100%;display:flex;flex-wrap:wrap;gap:4px 2px;justify-content:flex-start}
+  .pub-nav a.navlink{margin-left:0;margin-right:14px;font-size:.82rem}
+  .pub-nav a.navlink.btn{margin-left:auto;margin-right:0}
+  .hero{padding:38px 16px 52px}
+  .hero h1{font-size:1.45rem}
+  .public-wrap{padding:18px 12px 50px}
+  /* tabel: scroll horizontal halus */
+  .table-wrap{-webkit-overflow-scrolling:touch;scrollbar-width:thin}
+  table.tbl th,table.tbl td{padding:9px 10px}
+  .modal{max-height:92dvh}
+  .login-card{padding:24px 20px}
+}
+@media(max-width:600px){
+  .steps{gap:5px;margin:18px 0 22px}
+  .step{padding:6px 10px;font-size:.7rem}
+  .step .lbl-step{display:none}
+  .jenis-grid{grid-template-columns:1fr}
+  .date-grid{grid-template-columns:repeat(auto-fill,minmax(128px,1fr));gap:9px}
+  .feature{margin-top:-30px;gap:12px}
+  .timeline{gap:6px}
+  .tl .arr{padding:0 4px}
+  .btn{padding:9px 13px}
+  .userchip .uname{display:none}
+}
+/* cetak: sembunyikan elemen non-dokumen */
+@media print{
+  .sidebar,.topbar,.pub-header,.pub-footer,.no-print,.hamburger,.sidebar-backdrop{display:none!important}
+  .layout{display:block}
+  .content{padding:0;max-width:none}
+  body{background:#fff}
+  .card{border:none;box-shadow:none}
+}

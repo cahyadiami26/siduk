@@ -44,6 +44,7 @@ $allow = [
 </head>
 <body>
 <div class="layout">
+  <div class="sidebar-backdrop"></div>
   <aside class="sidebar">
     <div class="brand">
       <?php if ($logoRel): ?><img src="uploads/<?= e($logoRel) ?>" alt="logo">
@@ -72,9 +73,14 @@ $allow = [
   </aside>
   <div class="main">
     <div class="topbar">
-      <h4><?= e($page_title ?? 'Dashboard') ?></h4>
+      <div class="flex" style="gap:10px">
+        <button type="button" class="hamburger no-print" aria-label="Buka menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+        </button>
+        <h4><?= e($page_title ?? 'Dashboard') ?></h4>
+      </div>
       <div class="userchip">
-        <div style="text-align:right;line-height:1.25">
+        <div class="uname" style="text-align:right;line-height:1.25">
           <b style="font-size:.86rem"><?= e($u['nama']) ?></b><br>
           <span class="small muted"><?= e(role_label($u['role'])) ?></span>
         </div>

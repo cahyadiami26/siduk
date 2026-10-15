@@ -93,7 +93,7 @@ include __DIR__ . '/app/partials/header_dash.php';
           <?php if (setting('logo')): ?><img src="uploads/<?= e(setting('logo')) ?>" class="imgprev" style="max-height:90px"><br><?php endif; ?>
           <form method="post" enctype="multipart/form-data" style="margin-top:8px">
             <?= csrf_field() ?><input type="hidden" name="act" value="upload"><input type="hidden" name="target" value="logo">
-            <input type="file" name="berkas" accept=".png,.jpg,.jpeg" class="inp" style="padding:6px">
+            <input type="file" name="berkas" accept=".png,.jpg,.jpeg" class="upl-native">
             <div class="flex" style="margin-top:8px">
               <button class="btn btn-outline btn-sm">Unggah Logo</button>
               <button class="btn btn-danger btn-sm" onclick="return confirm('Hapus logo?')" name="hapus" value="1">Hapus</button>
@@ -105,7 +105,7 @@ include __DIR__ . '/app/partials/header_dash.php';
           <?php if (setting('ttd_kepala_dinas')): ?><img src="uploads/<?= e(setting('ttd_kepala_dinas')) ?>" class="imgprev" style="max-height:70px"><br><?php endif; ?>
           <form method="post" enctype="multipart/form-data" style="margin-top:8px">
             <?= csrf_field() ?><input type="hidden" name="act" value="upload"><input type="hidden" name="target" value="ttd">
-            <input type="file" name="berkas" accept=".png,.jpg,.jpeg" class="inp" style="padding:6px">
+            <input type="file" name="berkas" accept=".png,.jpg,.jpeg" class="upl-native">
             <div class="flex" style="margin-top:8px">
               <button class="btn btn-outline btn-sm">Unggah TTD</button>
               <button class="btn btn-danger btn-sm" onclick="return confirm('Hapus tanda tangan?')">Hapus</button>

@@ -70,7 +70,7 @@ include __DIR__ . '/app/partials/header_public.php';
       </div>
       <?php endif; ?>
 
-      <table class="tbl" style="margin-top:12px">
+      <table class="tbl defn" style="margin-top:12px">
         <tr><td class="muted" style="width:38%">Tanggal Pendaftaran</td><td><?= tgl_id($p['tgl_daftar'], true, true) ?></td></tr>
         <tr><td class="muted">Jadwal Verifikasi Berkas</td><td><b><?= tgl_id($p['tgl_verifikasi'], true) ?></b> — Loket <?= e($p['loket_nomor'] ?: '-') ?> (No. Urut <?= (int)$p['nomor_urut'] ?>)</td></tr>
         <?php if ($p['tgl_pengambilan']): ?>

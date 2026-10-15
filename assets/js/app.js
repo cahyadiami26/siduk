@@ -80,3 +80,80 @@ function togglePenjamin(sel){
   const box = $id('box-penjamin');
   if(box) box.style.display = sel.value === 'diwakilkan' ? '' : 'none';
 }
+
+/* ---------- Drawer sidebar dashboard (mobile) ---------- */
+document.addEventListener('DOMContentLoaded', ()=>{
+  const hb = document.querySelector('.hamburger');
+  if(hb) hb.addEventListener('click', ()=> document.body.classList.toggle('nav-open'));
+  const bd = document.querySelector('.sidebar-backdrop');
+  if(bd) bd.addEventListener('click', ()=> document.body.classList.remove('nav-open'));
+  document.querySelectorAll('.menu a').forEach(a=> a.addEventListener('click', ()=> document.body.classList.remove('nav-open')));
+});
+
+/* ---------- Komponen upload: sumber Kamera / Galeri / Dokumen (HP) ----------
+   Membuat <input type=file> tersembunyi per sumber sehingga browser mobile
+   menawarkan opsi kamera, galeri foto, atau dokumen secara langsung.     */
+const UPL_SOURCES = [
+  {key:'kamera', label:'Kamera', capture:'camera', accept:'image/*',
+   icon:'<path d="M3 8a2 2 0 012-2h1.5l1-2h5l1 2H19a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/><circle cx="12" cy="13" r="3.5"/>'},
+  {key:'galeri', label:'Galeri', capture:null, accept:'image/*',
+   icon:'<rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="9" cy="10" r="1.6"/><path d="M3 17l5-4 4 3 3-3 6 5"/>'},
+  {key:'dokumen', label:'Dokumen', capture:null, accept:'application/pdf,image/jpeg,image/png',
+   icon:'<path d="M7 3h7l4 4v14H7zM14 3v4h4"/>'},
+];
+
+function buildUpload(inp){
+  if(inp.dataset.uplBuilt) return;
+  inp.dataset.uplBuilt = '1';
+  const baseAccept = inp.getAttribute('accept') || '';
+  const holder = document.createElement('div');
+  inp.after(holder);
+
+  // tombol sumber (hanya tampil via CSS pada layar <=991px / HP)
+  let btns = '<div class="upl-sumber">';
+  for(const s of UPL_SOURCES){
+    btns += `<button type="button" class="upl-btn" data-key="${s.key}">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${s.icon}</svg>${s.label}</button>`;
+  }
+  btns += '</div><div class="upl-thumbs"></div>';
+  holder.innerHTML = btns;
+
+  // input file tersembunyi per sumber → trigger native picker kamera/galeri/dokumen
+  for(const s of UPL_SOURCES){
+    const hidden = document.createElement('input');
+    hidden.type = 'file';
+    hidden.accept = baseAccept || s.accept;
+    if(s.capture) hidden.setAttribute('capture', s.capture);
+    hidden.style.display = 'none';
+    hidden.addEventListener('change', ()=>{
+      if(hidden.files[0]){
+        try{ inp.files = hidden.files; }catch(e){ /* Safari lama */ }
+        inp.dispatchEvent(new Event('change', {bubbles:true}));
+      }
+      hidden.value = '';
+    });
+    holder.appendChild(hidden);
+    holder.querySelector(`.upl-btn[data-key="${s.key}"]`).addEventListener('click', ()=> hidden.click());
+  }
+
+  // thumbnail gambar terpilih
+  inp.addEventListener('change', ()=>{
+    const th = holder.querySelector('.upl-thumbs'); th.innerHTML = '';
+    for(const f of inp.files){
+      if(/^image\//.test(f.type)){
+        const img = document.createElement('img');
+        img.src = URL.createObjectURL(f);
+        img.onload = ()=> URL.revokeObjectURL(img.src);
+        th.appendChild(img);
+      }
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  document.querySelectorAll('input[type="file"]').forEach(buildUpload);
+});
+// untuk input yang dirender dinamis (wizard step 3) — hook global
+window.initUploadWidgets = function(scope){
+  (scope || document).querySelectorAll('input[type="file"]').forEach(buildUpload);
+};

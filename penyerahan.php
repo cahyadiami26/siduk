@@ -141,7 +141,7 @@ include __DIR__ . '/app/partials/header_dash.php';
       <?php if ($s['status'] !== 'diproses'): ?>
         <div class="alert alert-warning">Permohonan ini berstatus <b><?= e($s['status']) ?></b> dan tidak dapat diserahkan.</div>
       <?php else: ?>
-        <table class="tbl" style="width:100%;margin-bottom:12px">
+        <table class="tbl defn" style="width:100%;margin-bottom:12px">
           <tr><td class="small muted" style="width:32%">Pemohon</td><td><b><?= e($s['nama']) ?></b> · NIK <?= e($s['nik']) ?></td></tr>
           <tr><td class="small muted">Jenis Layanan</td><td><span class="chip"><?= e($s['jenis_kode']) ?></span> <?= e($s['jenis_nama']) ?></td></tr>
           <tr><td class="small muted">Jadwal Ambil</td><td><b><?= tgl_id($s['tgl_pengambilan'], true) ?></b></td></tr>

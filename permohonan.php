@@ -148,11 +148,11 @@ include __DIR__ . '/app/partials/header_public.php';
   </div>
 
   <div class="steps">
-    <div class="step" data-n="1"><span class="n">1</span> Identitas</div>
-    <div class="step" data-n="2"><span class="n">2</span> Jenis Layanan</div>
-    <div class="step" data-n="3"><span class="n">3</span> Data &amp; Syarat</div>
-    <div class="step" data-n="4"><span class="n">4</span> Jadwal Verifikasi</div>
-    <div class="step" data-n="5"><span class="n">5</span> Konfirmasi</div>
+    <div class="step" data-n="1"><span class="n">1</span><span class="lbl-step"> Identitas</span></div>
+    <div class="step" data-n="2"><span class="n">2</span><span class="lbl-step"> Jenis Layanan</span></div>
+    <div class="step" data-n="3"><span class="n">3</span><span class="lbl-step"> Data &amp; Syarat</span></div>
+    <div class="step" data-n="4"><span class="n">4</span><span class="lbl-step"> Jadwal Verifikasi</span></div>
+    <div class="step" data-n="5"><span class="n">5</span><span class="lbl-step"> Konfirmasi</span></div>
   </div>
 
   <?php if ($errors): ?>
@@ -302,10 +302,11 @@ function renderDinamis(jid){
     html += `<div class="upload-item">
       <label class="flbl ${req?'req':''}" style="margin-bottom:4px">${esc(y.nama_syarat)}</label>
       ${y.deskripsi?`<div class="hint" style="margin:0 0 6px">${esc(y.deskripsi)}</div>`:''}
-      <input type="file" name="syarat[${y.id}]" accept=".pdf,.jpg,.jpeg,.png" onchange="previewUpload(this, this.nextElementSibling)" ${req?'data-req="1"':''} style="font-size:.85rem">
-      <span class="small muted">Belum ada file dipilih</span></div>`;
+      <input type="file" class="upl-native" name="syarat[${y.id}]" accept=".pdf,.jpg,.jpeg,.png" onchange="previewUpload(this, this.parentElement.querySelector('.upl-status'))" ${req?'data-req="1"':''}>
+      <span class="upl-status small muted">Belum ada file dipilih · di HP gunakan tombol Kamera/Galeri/Dokumen</span></div>`;
   }
   area.innerHTML = html;
+  if(window.initUploadWidgets) initUploadWidgets(area);
   // required file validation via data-req handled custom: file inputs need different check
   area.querySelectorAll('input[type=file][data-req]').forEach(inp=>{
     inp.removeAttribute('data-req');

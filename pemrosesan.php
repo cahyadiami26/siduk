@@ -164,7 +164,7 @@ $modalOpen = ($openDetail || $pr || $bk) ? ' open' : '';
         <p style="margin:0"><span class="chip"><?= e($d['jenis_kode']) ?></span> <b><?= e($d['jenis_nama']) ?></b>
            &nbsp; <?= status_badge($d['status']) ?></p>
         <h6 style="margin:12px 0 4px;font-size:.95rem;color:var(--navy)"><?= e($d['nomor_pendaftaran']) ?></h6>
-        <table class="tbl" style="width:100%">
+        <table class="tbl defn" style="width:100%">
           <tr><td class="small muted" style="width:35%">Nama / NIK</td><td><?= e($d['nama']) ?> · <?= e($d['nik']) ?></td></tr>
           <tr><td class="small muted">Email / No. HP</td><td><?= e($d['email']) ?> · <?= e($d['no_hp']) ?></td></tr>
           <tr><td class="small muted">Tgl Daftar</td><td><?= tgl_id($d['tgl_daftar'], false, true) ?> · Urut #<?= (int)$d['nomor_urut'] ?> Loket <?= e($d['loket_nomor'] ?: '-') ?></td></tr>
