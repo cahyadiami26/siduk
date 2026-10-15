@@ -153,7 +153,45 @@ function buildUpload(inp){
 document.addEventListener('DOMContentLoaded', ()=>{
   document.querySelectorAll('input[type="file"]').forEach(buildUpload);
   initWorkdayInputs();
+  initFormatNomor();
 });
+
+/* ---------- Pengaturan format nomor pendaftaran: sisip placeholder + preview live ---------- */
+function initFormatNomor(){
+  const inp = $id('format_nomor'); if(!inp) return;
+  const selKode = $id('contoh_kode'), prev = $id('nomor_preview');
+  // mapping placeholder → nilai contoh (kode jenis dipilih admin di dropdown)
+  function renderPreview(){
+    if(!prev) return;
+    const now = new Date(), kode = (selKode ? selKode.value : 'KK');
+    const p2 = n => String(n).padStart(2,'0'), p3 = n => String(n).padStart(3,'0'), p4 = n => String(n).padStart(4,'0');
+    let out = inp.value
+      .replaceAll('{KODE}', kode.toUpperCase())
+      .replaceAll('{Kode}', kode.charAt(0) + kode.slice(1).toLowerCase())
+      .replaceAll('{kode}', kode.toLowerCase())
+      .replaceAll('{yyyy}', now.getFullYear())
+      .replaceAll('{yy}', p2(now.getFullYear()%100))
+      .replaceAll('{mm}', p2(now.getMonth()+1))
+      .replaceAll('{m}',   now.getMonth()+1)
+      .replaceAll('{dd}',  p2(now.getDate()))
+      .replaceAll('{d}',   now.getDate())
+      .replaceAll('{nnnn}', p4(27)).replaceAll('{nnn}', p3(27)).replaceAll('{nn}', p2(27)).replaceAll('{n}', 27);
+    prev.textContent = out;
+  }
+  inp.addEventListener('input', renderPreview);
+  if(selKode){ selKode.removeAttribute('onchange'); selKode.addEventListener('change', renderPreview); }
+  document.querySelectorAll('.chip.ph').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const ph = b.dataset.ph;
+      const s = inp.selectionStart ?? inp.value.length, epos = inp.selectionEnd ?? s;
+      inp.value = inp.value.slice(0,s) + ph + inp.value.slice(epos);
+      inp.focus();
+      inp.setSelectionRange(s + ph.length, s + ph.length);
+      renderPreview();
+    });
+  });
+  renderPreview();
+}
 // untuk input yang dirender dinamis (wizard step 3) — hook global
 window.initUploadWidgets = function(scope){
   (scope || document).querySelectorAll('input[type="file"]').forEach(buildUpload);
