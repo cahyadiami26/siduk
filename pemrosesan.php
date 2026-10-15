@@ -18,6 +18,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (!$ts || date('Y-m-d', $ts) <= today()) {
             flash_set('danger', 'Tanggal pengambilan harus setelah hari ini.'); redirect('pemrosesan.php?detail=' . $id);
         }
+        if (in_array((int)date('N', $ts), [6, 7])) {
+            flash_set('danger', 'Tanggal pengambilan harus hari kerja (Senin–Jumat). Sabtu/Minggu tidak dilayani.'); redirect('pemrosesan.php?detail=' . $id);
+        }
         $loketV = pick_loket((int)$p['jenis_id'], 'verifikasi');
         q("UPDATE permohonan SET status='diproses', tgl_pengambilan=?, diverifikasi_oleh=?, tgl_verifikasi_akhir=?, loket_id=? WHERE id=?",
           [date('Y-m-d', $ts), $u['id'], date('Y-m-d H:i:s'), $loketV['id'] ?? $p['loket_id'], $id]);
@@ -197,14 +200,15 @@ $modalOpen = ($openDetail || $pr || $bk) ? ' open' : '';
         </div>
 
         <?php if ($pr && $pr['status'] === 'menunggu_verifikasi'):
-          // saran tanggal pengambilan: +3..+14 hari kerja sederhana
+          // saran tanggal pengambilan: 3 hari kerja ke depan (Senin–Jumat)
         ?>
         <form method="post" style="margin-top:16px;border-top:2px dashed var(--line);padding-top:14px">
           <?= csrf_field() ?>
           <input type="hidden" name="aksi" value="verifikasi"><input type="hidden" name="id" value="<?= (int)$pr['id'] ?>">
-          <div class="fgroup"><label class="flbl"><b>Tanggal Pengambilan Dokumen</b> (setelah verifikasi)</label>
-            <input class="inp" type="date" name="tgl_pengambilan" required min="<?= e(date('Y-m-d', strtotime('+1 day'))) ?>"
-                   value="<?= e(date('Y-m-d', strtotime('+3 days'))) ?>"></div>
+          <div class="fgroup"><label class="flbl"><b>Tanggal Pengambilan Dokumen</b> (setelah verifikasi — hanya hari kerja Senin–Jumat)</label>
+            <input class="inp" type="date" name="tgl_pengambilan" required min="<?= e(next_workday('tomorrow')) ?>"
+                   data-workday
+                   value="<?= e(next_workday('now', 3)) ?>"></div>
           <p class="small muted">Dengan menekan tombol ini, status permohonan berubah menjadi <b>DIPROSES</b> dan tercatat petugas <b><?= e($u['nama']) ?></b>.</p>
           <button class="btn btn-success">✔ Verifikasi Berkas &amp; Simpan Jadwal</button>
         </form>

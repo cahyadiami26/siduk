@@ -41,13 +41,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && post('action') === 'submit') {
         }
     }
 
-    // Step 4: tanggal verifikasi harus tersedia kuota
+    // Step 4: tanggal verifikasi harus hari kerja & tersedia kuota
     $tgl_ok = false;
     if ($jenis && $old['tgl_verifikasi']) {
-        $hari_minggu = val("SELECT COUNT(*) FROM loket WHERE jenis='penerimaan' AND aktif=1") > 0;
         $ts = strtotime($old['tgl_verifikasi']);
         if ($ts && $ts >= strtotime('tomorrow')) {
-            if (kuota_sisa((int)$jenis['id'], $old['tgl_verifikasi']) > 0) $tgl_ok = true;
+            if (in_array((int)date('N', $ts), [6, 7])) {
+                $errors[] = 'Verifikasi berkas hanya pada hari kerja (Senin–Jumat).';
+            } elseif (kuota_sisa((int)$jenis['id'], $old['tgl_verifikasi']) > 0) $tgl_ok = true;
             else $errors[] = 'Kuota tanggal terpilih sudah penuh.';
         } else $errors[] = 'Tanggal verifikasi tidak valid (minimal besok).';
     } elseif ($jenis) {
@@ -125,15 +126,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && post('action') === 'submit') {
     }
 }
 
-/* Ketersediaan kuota 14 hari ke depan utk jenis terpilih (endpoint AJAX) */
+/* Ketersediaan kuota HARI KERJA (Sen–Jum) utk jenis terpilih — Sabtu/Minggu tidak ditampilkan (endpoint AJAX) */
 if (get('ajax') === 'kuota') {
     header('Content-Type: application/json');
     $jid = (int)get('jenis');
     $jenisA = $jid ? row("SELECT * FROM jenis_permohonan WHERE id = ? AND aktif = 1", [$jid]) : null;
     if (!$jenisA) exit(json_encode([]));
     $out = [];
-    for ($i = 1; $i <= 14; $i++) {
-        $d = date('Y-m-d', strtotime("+$i day"));
+    $ts = time();
+    for ($n = 0; $n < 15; $n++) {                       // 15 hari kerja ke depan
+        $ts = strtotime('+1 day', $ts);
+        while (in_array((int)date('N', $ts), [6, 7])) { // lewati Sabtu & Minggu
+            $ts = strtotime('+1 day', $ts);
+        }
+        $d = date('Y-m-d', $ts);
         $out[] = ['tanggal' => $d, 'sisa' => kuota_sisa((int)$jenisA['id'], $d)];
     }
     exit(json_encode($out));
@@ -231,7 +237,7 @@ include __DIR__ . '/app/partials/header_public.php';
     <div class="card wstep" data-step="4" style="display:none">
       <div class="hd"><h5>Langkah 4 — Pilih Tanggal Verifikasi Berkas</h5></div>
       <div class="bd">
-        <p class="small muted mt0">Tanggal yang tersedia menyesuaikan kuota pemohon harian per jenis layanan. Harap datang pada tanggal terpilih dengan membawa berkas asli.</p>
+        <p class="small muted mt0">Pilihan tanggal hanya <b>hari kerja (Senin–Jumat)</b> dan menyesuaikan kuota pemohon harian per jenis layanan. Harap datang pada tanggal terpilih dengan membawa berkas asli.</p>
         <div id="date-area" class="date-grid"><div class="empty">Muat jadwal…</div></div>
         <div class="flex spread" style="margin-top:16px">
           <button type="button" class="btn btn-outline" onclick="gotoStep(3)">← Kembali</button>

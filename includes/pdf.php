@@ -35,11 +35,57 @@ function img_data_uri(?string $relPath, int $maxW = 200): string
     return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($abs));
 }
 
-/** URL QR Code online (api.qrserver.com) berisi nomor pendaftaran + token */
-function qr_url(string $text, int $size = 130): string
+/** QR Code: unduh dari API online (api.qrserver.com) → cache permanen di /uploads/qr
+ * → kembalikan data URI base64 sehingga selalu tampil baik di halaman web maupun PDF domPDF
+ * (domPDF tidak memuat URL remote). Jika API gagal, dicoba endpoint alternatif quickchart.io,
+ * lalu fallback ke URL API langsung (browser masih bisa menampilkannya di halaman HTML). */
+function qr_api_url(string $text, int $size): string
 {
     return 'https://api.qrserver.com/v1/create-qr-code/?size=' . $size . 'x' . $size .
            '&margin=0&data=' . urlencode($text);
+}
+
+function qr_fetch(string $url): ?string
+{
+    $ctx = stream_context_create([
+        'http' => ['timeout' => 10, 'follow_location' => 1, 'user_agent' => 'SIDUK/1.0'],
+        'ssl'  => ['verify_peer' => false, 'verify_peer_name' => false],
+    ]);
+    $data = @file_get_contents($url, false, $ctx);
+    if ($data === false) return null;
+    // pastikan hasil unduhan benar-benar gambar (PNG/JPEG), bukan halaman error
+    if (strlen($data) < 200) return null;
+    $sig = substr($data, 0, 8);
+    if (strpos($sig, 'PNG') !== false || strpos($sig, 'JFIF') !== false || strpos($sig, 'Exif') !== false) {
+        return $data;
+    }
+    return null;
+}
+
+function qr_url(string $text, int $size = 130): string
+{
+    $cacheDir = defined('UPLOAD_DIR') ? UPLOAD_DIR . '/qr' : __DIR__ . '/../uploads/qr';
+    if (!is_dir($cacheDir)) @mkdir($cacheDir, 0777, true);
+    $file = $cacheDir . '/qr_' . md5($text . '|' . $size) . '.png';
+
+    $data = (is_file($file) && filesize($file) > 0) ? @file_get_contents($file) : null;
+
+    if (!$data) {
+        $data = qr_fetch(qr_api_url($text, $size));
+        if (!$data) {   // endpoint cadangan (tetap layanan QR API online)
+            $data = qr_fetch('https://quickchart.io/qr?size=' . $size . '&margin=0&format=png&text=' . urlencode($text));
+        }
+        if ($data) @file_put_contents($file, $data);
+    }
+
+    if ($data) return 'data:image/png;base64,' . base64_encode($data);
+    // fallback terakhir: URL API langsung (browser bisa memuatnya pada halaman HTML).
+    // Jika itu pun gagal dimuat, tampilkan placeholder terkode-data agar area QR tidak blank.
+    $ph = '<svg xmlns="http://www.w3.org/2000/svg" width="' . $size . '" height="' . $size . '">'
+        . '<rect width="100%" height="100%" fill="#f1f5f9" stroke="#cbd5e1"/>'
+        . '<text x="50%" y="46%" font-size="' . max(8, (int)($size / 12)) . '" fill="#64748b" text-anchor="middle">QR Code</text>'
+        . '<text x="50%" y="58%" font-size="' . max(7, (int)($size / 14)) . '" fill="#94a3b8" text-anchor="middle">tidak tersedia</text></svg>';
+    return 'data:image/svg+xml;base64,' . base64_encode($ph);
 }
 
 /** Header kop surat standar dinas */

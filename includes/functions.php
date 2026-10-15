@@ -129,6 +129,24 @@ function kuota_sisa(int $jenis_id, string $tanggal): int
     return max(0, $kuota - $terpakai);
 }
 
+/** Tanggal hari kerja (Senin–Jumat). Sabtu & Minggu dilalui tanpa dihitung. */
+function next_workday(string $from = 'now', int $addWorkdays = 0): string
+{
+    $ts = strtotime($from);
+    for ($i = 0; $i < $addWorkdays; $i++) {
+        do { $ts = strtotime('+1 day', $ts); } while (in_array((int)date('N', $ts), [6, 7]));
+    }
+    // pastikan hasil akhir juga hari kerja
+    while (in_array((int)date('N', $ts), [6, 7])) { $ts = strtotime('+1 day', $ts); }
+    return date('Y-m-d', $ts);
+}
+
+/** Tambah N hari kerja dari sebuah tanggal Y-m-d */
+function add_workdays(string $ymd, int $n): string
+{
+    return next_workday($ymd, $n);
+}
+
 function pick_loket(int $jenis_id, string $jenis_loket = 'penerimaan'): ?array
 {
     return row("SELECT l.* FROM loket l

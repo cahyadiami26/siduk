@@ -152,8 +152,30 @@ function buildUpload(inp){
 
 document.addEventListener('DOMContentLoaded', ()=>{
   document.querySelectorAll('input[type="file"]').forEach(buildUpload);
+  initWorkdayInputs();
 });
 // untuk input yang dirender dinamis (wizard step 3) — hook global
 window.initUploadWidgets = function(scope){
   (scope || document).querySelectorAll('input[type="file"]').forEach(buildUpload);
 };
+
+/* Input tanggal dengan atribut data-workday: tolak Sabtu/Minggu saat dipilih */
+function initWorkdayInputs(){
+  document.querySelectorAll('input[type="date"][data-workday]').forEach(inp=>{
+    const check = ()=>{
+      if(!inp.value) return;
+      const d = new Date(inp.value + 'T00:00:00');
+      const day = d.getDay(); // 0=Minggu, 6=Sabtu
+      if(day === 0 || day === 6){
+        inp.setCustomValidity('Tanggal harus hari kerja (Senin–Jumat). Sabtu/Minggu tidak dilayani.');
+        let t = d;
+        while(t.getDay() === 0 || t.getDay() === 6){ t.setDate(t.getDate()+1); }
+        inp.value = t.getFullYear()+'-'+String(t.getMonth()+1).padStart(2,'0')+'-'+String(t.getDate()).padStart(2,'0');
+      } else {
+        inp.setCustomValidity('');
+      }
+    };
+    inp.addEventListener('change', check);
+    inp.addEventListener('input', check);
+  });
+}

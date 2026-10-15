@@ -35,7 +35,7 @@ $html = '
     </div>
   </td>
   <td style="width:36%;vertical-align:top;padding-left:10px;text-align:center">
-    <img src="' . $qrcode . '" style="width:118px;height:118px;border:1px solid #c8cfdd;border-radius:8px;background:#fff;padding:5px"><br>
+    <img src=' . $qrcode . '" alt="QR Code Verifikasi" style="width:118px;height:118px;border:1px solid #c8cfdd;border-radius:8px;background:#fff;padding:5px"><br>
     <span class="small">QR Validasi Bukti Verifikasi</span>
     <div style="font-size:8pt;margin-top:10px;text-align:right;padding-right:6px">
       ' . e(setting('nama_dinas_short')) . ', ' . tgl_id(date('Y-m-d')) . '<br>
