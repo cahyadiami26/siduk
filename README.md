@@ -28,7 +28,11 @@ Aplikasi web pelayanan dokumen kependudukan: **PHP native + MySQL/MariaDB**, tan
    mysql -u root -p < database.sql          # membuat DB `siduk` + data awal
    php -S localhost:8000                    # akses http://localhost:8000
    ```
-2. Konfigurasi koneksi bila perlu di `includes/config.php`.
+2. Konfigurasi koneksi database melalui file **`.env`** (lihat `.env.example`):
+   ```bash
+   cp .env.example .env      # lalu edit DB_HOST, DB_USER, DB_PASS, DB_NAME
+   ```
+   Prioritas nilai: environment server (SetEnv/php-fpm/docker) → `.env` → default (`localhost/root/kosong/siduk`). File `.env` sudah di-gitignore — jangan pernah di-commit.
 3. Seting email/logo/format nomor melalui **Dashboard → Pengaturan Aplikasi**.
 4. Pastikan folder `uploads/` dapat ditulis (chmod 775).
 

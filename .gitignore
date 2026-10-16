@@ -1,2 +1,5 @@
 lib/dompdf/vendor/
 uploads/
+
+# File environment rahasia (jangan di-commit)
+.env
